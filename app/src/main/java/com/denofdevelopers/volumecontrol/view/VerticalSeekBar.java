@@ -8,7 +8,6 @@ import android.view.MotionEvent;
 
 import androidx.appcompat.widget.AppCompatSeekBar;
 
-
 public class VerticalSeekBar extends AppCompatSeekBar {
 
     public VerticalSeekBar(Context context) {

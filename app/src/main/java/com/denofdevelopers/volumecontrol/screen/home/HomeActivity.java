@@ -1,7 +1,5 @@
 package com.denofdevelopers.volumecontrol.screen.home;
 
-import android.content.Context;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -58,8 +56,6 @@ public class HomeActivity extends AppCompatActivity {
     @BindView(R.id.editTxtLines)
     EditText editTxtLines;
 
-    private AudioManager audioManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +65,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupUi() {
-        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
         updateVolumeControlBars(AudioControlHelper.getCurrentVolume());
         percentageText.setText(getString(R.string.volume_set_at, String.valueOf(AudioControlHelper.getCurrentVolume())));
         updateVolumeDisplay();
@@ -141,6 +136,40 @@ public class HomeActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.w(TAG, e.getCause());
         }
+    }
+
+    private void setActiveColor(View view, boolean isActive) {
+        if (isActive) {
+            view.setBackgroundColor(getResources().getColor(R.color.active));
+        } else {
+            view.setBackgroundColor(getResources().getColor(R.color.inactive));
+        }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    AudioControlHelper.increaseVolume();
+                    updateVolumeControlBars(AudioControlHelper.getCurrentVolume());
+                }
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    AudioControlHelper.decreaseVolume();
+                    updateVolumeControlBars(AudioControlHelper.getCurrentVolume());
+                }
+                return true;
+            default:
+                return super.dispatchKeyEvent(event);
+        }
+    }
+
+    private void setPercentageText(int percentage) {
+        percentageText.setText(getString(R.string.volume_set_at, String.valueOf(percentage)));
     }
 
     private void updateVolumeControlBars(int percentage) {
@@ -243,41 +272,4 @@ public class HomeActivity extends AppCompatActivity {
         AudioControlHelper.setVolume(percentage);
         setPercentageText(percentage);
     }
-
-    private void setActiveColor(View view, boolean isActive) {
-        if (isActive) {
-            view.setBackgroundColor(getResources().getColor(R.color.active));
-        } else {
-            view.setBackgroundColor(getResources().getColor(R.color.inactive));
-        }
-    }
-
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        int action = event.getAction();
-        int keyCode = event.getKeyCode();
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                if (action == KeyEvent.ACTION_DOWN) {
-                    AudioControlHelper.increaseVolume();
-                    updateVolumeControlBars(AudioControlHelper.getCurrentVolume());
-                    //setPercentageText(AudioControlHelper.getCurrentVolume());
-                }
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                if (action == KeyEvent.ACTION_DOWN) {
-                    AudioControlHelper.decreaseVolume();
-                    updateVolumeControlBars(AudioControlHelper.getCurrentVolume());
-                    //setPercentageText(AudioControlHelper.getCurrentVolume());
-                }
-                return true;
-            default:
-                return super.dispatchKeyEvent(event);
-        }
-    }
-
-    private void setPercentageText(int percentage) {
-        percentageText.setText(getString(R.string.volume_set_at, String.valueOf(percentage)));
-    }
-
 }
